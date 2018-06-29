@@ -1,1 +1,1 @@
-MusicDataBaseExamples.git
+SequelizeHandsOn

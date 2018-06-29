@@ -1,0 +1,52 @@
+<nav class="navbar sticky-top navbar-dark"style="background-color: #8B939D;">
+                <a class="navbar-brand" href="/albums">Creative Music - Library</a>
+                <ul class="nav justify-content-end">
+  <li class="nav-item">
+    <a class="nav-link" style="color:white;" href="/albums">Albums</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" style="color:white;" href="/add">Add Artist</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" style="color:white;" href="/songsearch">Search</a>
+  </li>
+</ul>
+         </nav>
+
+<div> 
+    <form action="/songsearchresult" method="POST" style="margin:30px;">
+    Enter in the max length of a song to view the results.
+    <br><br>
+    <div>
+        <label for="minutes">Minutes: </label>
+        <input type="number" id="minutes" name="minutes" style="width:35px;margin-right:10px;">
+    
+        <label for="seconds">Seconds </label>
+        <input type="number" id="seconds" name="seconds" style="width:45px;margin-right:20px;">
+    
+        <button class="btn" type="submit" style="color:white;background-color:rgb(71, 152, 245);">Search</button>
+    </div>
+</form> 
+
+
+<div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Track Name</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+       {{#each array2}}
+    <tr>
+       
+      <td name="Name">{{this.trackName}}</td>
+      
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+</div>
+
+<br>

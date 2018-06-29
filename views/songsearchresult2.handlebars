@@ -1,0 +1,23 @@
+<div style="margin:20px;">
+    <a href="/songsearch" style="color:rgb(51, 108, 184);">Reset Search</a>
+</div>
+
+<div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Track Name</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+       {{#each tracks}}
+    <tr>
+      <td name="Name">{{Name}}</td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+</div>
+
+<br>
