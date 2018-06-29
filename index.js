@@ -4,7 +4,9 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const Sequelize = require('Sequelize');
 const app = express();
+const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -98,6 +100,49 @@ const Track = sequelize.define(
 //end models
 
 
+//username & password local strategy
+passport.use(new LocalStrategy(
+    function(username, password, done) {
+      User.findOne({ username: username }, function(err, user) {
+        if (err) { return done(err); }
+        if (!user) {
+          return done(null, false, { message: 'Incorrect username.' });
+        }
+        if (!user.validPassword(password)) {
+          return done(null, false, { message: 'Incorrect password.' });
+        }
+        return done(null, user);
+      });
+    }
+  ));
+
+
+
+
+
+//Two methods provided by Passport, serializeUser and deserializeUser, which are used to map requests to the currently authenticated 
+//user in storage. In this case, we will be storing the information in the database and the authId in a session. Then if we need any 
+//more information, we can make a query using the authId stored in the session.
+//method 1
+passport.serializeUser((user, done) => {
+    done(null, user._id);
+});
+//method 2
+passport.deserializeUser((id, done) =>{
+    User.findAll(
+        {
+            where: {
+                userId: id
+            }
+        },
+        (err, user) => {
+            if (err || !user) return done(err, null);
+            done(null, user);
+        }
+    );
+});
+
+
 //how to display all albums and artists in columns
 
 Album.belongsTo(Artist, {foreignKey: 'ArtistId', targetKey: 'ArtistId'}); //this is kinda like inner join where you are combinding 2 col
@@ -143,7 +188,9 @@ Album.belongsTo(Artist, {foreignKey: 'ArtistId', targetKey: 'ArtistId'}); //this
 
 
 //search for song via song lenth
-
+    app.get('/login', (request, response) => {
+        response.render('login');
+    });
 
      app.get('/songsearch', (request, response) => {
         response.render('songsearch');
@@ -234,7 +281,7 @@ s
   });
 
 
-
+      
                                 
            app.use((req, res) => {
             res.status(404);
