@@ -4,6 +4,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const Sequelize = require('Sequelize');
 const app = express();
+const FacebookStrategy = require('passport-facebook').Strategy;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -27,7 +28,25 @@ const sequelize = new Sequelize('Music', 'David', null, {
     storage: '/Users/DavidScottPerez/Desktop/CODING!/SequelizeHandsOn/Chinook_Sqlite_AutoIncrementPKs.sqlite copy 2'
 }); //end
 
-//Artists and Albums models for mapping to database
+//models!
+const User = sequelize.define(
+    "User", 
+    {
+        userId: {
+            type: Sequelize.STRING,
+            autoIncrement: true, 
+            primaryKey: true
+        },
+        authId: {
+            type: Sequelize.STRING,
+            name: Sequelize.STRING,
+            email: Sequelize.STRING,
+            role: Sequelize.STRING
+        },
+
+                freezeTableName: true
+     }
+);
 
 const Artist = sequelize.define(
     'Artist',
@@ -76,6 +95,9 @@ const Track = sequelize.define(
         timestamps: false
     }
 );
+//end models
+
+
 //how to display all albums and artists in columns
 
 Album.belongsTo(Artist, {foreignKey: 'ArtistId', targetKey: 'ArtistId'}); //this is kinda like inner join where you are combinding 2 col
