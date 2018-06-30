@@ -17,18 +17,22 @@
          </nav>
 
 <body class="text-center">
-    <form class="form-signin">
-<div>
-    <center>
+ 
+<div style="margin:80px;">
+     <center>
+       <form class="form-signin" action="/login" method="post">
+   
         <br>
       <h1>Sign In</h1><br>
-      <label for="inputName" class="sr-only">Full Name</label>
-      <input type="name" id="inputName" class="form-control" placeholder="Full Name" style="width:300px;" required><br>
+      <label for="inputName" class="sr-only">UserName</label>
+      <input type="name" id="inputName" class="form-control" placeholder="Username" style="width:300px;" required>
+{{!<br>
       <label for="inputEmail" class="sr-only">Email address</label>
-      <input type="email" id="inputEmail" class="form-control" placeholder="Email address" style="width:300px;" required autofocus><br>
+      <input type="email" id="inputEmail" class="form-control" placeholder="Email address" style="width:300px;" required autofocus> }}
+<br>
       <label for="inputPassword" class="sr-only">Password</label>
       <input type="password" id="inputPassword" class="form-control" placeholder="Password" style="width:300px;" required><br>
-
+<br>
       <button class="btn btn-lg btn btn-block" style="width:100px;background-color:rgb(82, 137, 255);color:white;"type="submit">Sign in</button>
       <p class="mt-5 mb-3 text-muted">&copy; David Scott 2018</p>
       </div>  

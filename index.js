@@ -1,12 +1,15 @@
 const express = require('express'); 
+const passport = require('passport');
+const Strategy = require('passport-local').Strategy;
+
+
 const router = express.Router();
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const Sequelize = require('Sequelize');
 const app = express();
-const passport = require('passport');
-const FacebookStrategy = require('passport-facebook').Strategy;
-const LocalStrategy = require('passport-local').Strategy;
+
+//const FacebookStrategy = require('passport-facebook').Strategy;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -100,48 +103,52 @@ const Track = sequelize.define(
 //end models
 
 
-//username & password local strategy
-passport.use(new LocalStrategy(
-    function(username, password, done) {
-      User.findOne({ username: username }, function(err, user) {
-        if (err) { return done(err); }
-        if (!user) {
-          return done(null, false, { message: 'Incorrect username.' });
-        }
-        if (!user.validPassword(password)) {
-          return done(null, false, { message: 'Incorrect password.' });
-        }
-        return done(null, user);
+//passport stuff
+
+  // Configure the local strategy for use by Passport.
+  //
+  // The local strategy require a `verify` function which receives the credentials
+  // (`username` and `password`) submitted by the user.  The function must verify
+  // that the password is correct and then invoke `cb` with a user object, which
+  // will be set at `req.user` in route handlers after authentication.
+  passport.use(new Strategy(
+    function(username, password, cb) {
+      db.users.findByUsername(username, function(err, user) {
+        if (err) { return cb(err); }
+        if (!user) { return cb(null, false); }
+        if (user.password != password) { return cb(null, false); }
+        return cb(null, user);
       });
-    }
-  ));
+    }));
+
+    
+  app.post('/login',
+  passport.authenticate('local', { successRedirect: '/albums',
+                                   failureRedirect: '/login',
+                                   failureFlash: true })
+);
 
 
 
-
-
-//Two methods provided by Passport, serializeUser and deserializeUser, which are used to map requests to the currently authenticated 
-//user in storage. In this case, we will be storing the information in the database and the authId in a session. Then if we need any 
-//more information, we can make a query using the authId stored in the session.
-//method 1
-passport.serializeUser((user, done) => {
-    done(null, user._id);
-});
-//method 2
-passport.deserializeUser((id, done) =>{
-    User.findAll(
-        {
-            where: {
-                userId: id
-            }
-        },
-        (err, user) => {
-            if (err || !user) return done(err, null);
-            done(null, user);
-        }
-    );
-});
-
+// Configure Passport authenticated session persistence.
+//
+// In order to restore authentication state across HTTP requests, Passport needs
+// to serialize users into and deserialize users out of the session.  The
+// typical implementation of this is as simple as supplying the user ID when
+// serializing, and querying the user record by ID from the database when
+// deserializing.
+passport.serializeUser(function(user, cb) {
+    cb(null, user.id);
+  });
+  
+  passport.deserializeUser(function(id, cb) {
+    db.users.findById(id, function (err, user) {
+      if (err) { return cb(err); }
+      cb(null, user);
+    });
+  });
+  
+  
 
 //how to display all albums and artists in columns
 
@@ -186,11 +193,21 @@ Album.belongsTo(Artist, {foreignKey: 'ArtistId', targetKey: 'ArtistId'}); //this
 
         //end form  
 
+//routes
+app.get('/',
+  function(req, res) {
+    res.render('home', { user: req.user });
+  });
 
-//search for song via song lenth
     app.get('/login', (request, response) => {
         response.render('login');
     });
+    app.post('/login', 
+  passport.authenticate('local', { failureRedirect: '/login' }),
+  function(req, res) {
+    res.redirect('/');
+  });
+
 
      app.get('/songsearch', (request, response) => {
         response.render('songsearch');
@@ -202,8 +219,8 @@ Album.belongsTo(Artist, {foreignKey: 'ArtistId', targetKey: 'ArtistId'}); //this
         response.render('songsearchresult2');
     });
 
-    //song search 
-
+   
+//search for song via song lenth
       app.post('/songsearchresult', (req, res) => {
         const Op = Sequelize.Op //need this to breakdown the requirements kinda like WHERE
         //math math math
